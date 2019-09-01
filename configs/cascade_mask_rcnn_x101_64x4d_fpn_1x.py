@@ -190,10 +190,10 @@ test_cfg = dict(
         nms_thr=0.7,
         min_bbox_size=0),
     rcnn=dict(
-        score_thr=0.05,
+        score_thr=0.001,
         nms=dict(type='nms', iou_thr=0.5),
-        max_per_img=100,
-        mask_thr_binary=0.5),
+        max_per_img=50,
+        mask_thr_binary=0.45),
     keep_all_stages=False)
 # dataset settings
 dataset_type = 'SegCustomDataset'
@@ -267,6 +267,6 @@ total_epochs = 12
 dist_params = dict(backend='nccl')
 log_level = 'INFO'
 work_dir = './work_dirs/cascade_mask_rcnn_x101_64x4d_fpn_1x'
-load_from = None
+load_from = './work_dirs/cascade_mask_rcnn_x101_64x4d_fpn_1x/latest.pth'
 resume_from = None
 workflow = [('train', 1)]

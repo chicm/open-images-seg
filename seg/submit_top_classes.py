@@ -11,14 +11,14 @@ from tqdm import tqdm
 import glob
 import pickle
 
-from .settings import DATA_DIR
-from .utils import get_image_size, parallel_apply, encode_binary_mask
+from settings import DATA_DIR
+from utils import get_image_size, parallel_apply, encode_binary_mask
 
 preds = None
 classes = None
 
-def get_top_classes(start_index, end_index, class_file='top_classes_level1'):
-    df = pd.read_csv(class_file)
+def get_top_classes(start_index, end_index, class_file='top_classes_level1.csv'):
+    df = pd.read_csv(osp.join(DATA_DIR, class_file))
     c = df['class'].values[start_index:end_index]
     #print(df.head())
     stoi = { c[i]: i for i in range(len(c)) }
@@ -75,9 +75,11 @@ def submit(args):
         preds = pickle.load(f)
 
     print('len(preds):', len(preds))
-    assert len(preds[0]) == len(classes)
+    print('num classes of preds:', len(preds[0]))
+    print('specified num classes:', len(classes))
+    #assert len(preds[0]) == len(classes)
     
-    print('creating submissioin...')
+    print('creating submission...')
     df_test = pd.read_csv('sample_empty_submission.csv')
     df_test.ImageWidth = df_test.ImageID.map(lambda x: get_image_size(get_fn(x))[0])
     df_test.ImageHeight = df_test.ImageID.map(lambda x: get_image_size(get_fn(x))[1])
@@ -96,7 +98,7 @@ if __name__ == '__main__':
     parser.add_argument('--th', type=float, default=0.)
     parser.add_argument('--start_index', type=int, default=100)
     parser.add_argument('--end_index', type=int, default=275)
-    parser.add_argument('--class_file', type=str, default='top_classes_level1')
+    parser.add_argument('--class_file', type=str, default='top_classes_level1.csv')
     args = parser.parse_args()
     print(args)
 

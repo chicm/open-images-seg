@@ -6,7 +6,8 @@ from pycocotools import _mask as coco_mask
 import typing as t
 import zlib
 from multiprocessing import Pool
-
+import pandas as pd
+import numpy as np
 
 def get_image_size(fname):
     '''Determine the image type of fhandle and return its size.

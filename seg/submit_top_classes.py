@@ -10,8 +10,9 @@ import numpy as np
 from tqdm import tqdm
 import glob
 import pickle
+import pycocotools.mask as mutils
 
-from settings import DATA_DIR
+from settings import DATA_DIR, TEST_IMG_DIR
 from utils import get_image_size, parallel_apply, encode_binary_mask
 
 preds = None
@@ -75,12 +76,12 @@ def submit(args):
         preds = pickle.load(f)
 
     print('len(preds):', len(preds))
-    print('num classes of preds:', len(preds[0]))
+    print('num classes of preds:', len(preds[0][1]))
     print('specified num classes:', len(classes))
-    #assert len(preds[0]) == len(classes)
+    #assert len(preds[0][1]) == len(classes)
     
     print('creating submission...')
-    df_test = pd.read_csv('sample_empty_submission.csv')
+    df_test = pd.read_csv(osp.join(DATA_DIR, 'sample_empty_submission.csv'))
     df_test.ImageWidth = df_test.ImageID.map(lambda x: get_image_size(get_fn(x))[0])
     df_test.ImageHeight = df_test.ImageID.map(lambda x: get_image_size(get_fn(x))[1])
     df_test['img_index'] = df_test.index

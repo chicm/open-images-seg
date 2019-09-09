@@ -15,7 +15,13 @@ model = dict(
         num_stages=4,
         out_indices=(0, 1, 2, 3),
         frozen_stages=1,
-        style='pytorch'),
+        style='pytorch',
+        dcn=dict(
+            modulated=False,
+            groups=64,
+            deformable_groups=1,
+            fallback_on_stride=False),
+        stage_with_dcn=(False, True, True, True)),
     neck=dict(
         type='FPN',
         in_channels=[256, 512, 1024, 2048],
@@ -45,7 +51,7 @@ model = dict(
             in_channels=256,
             fc_out_channels=1024,
             roi_feat_size=7,
-            num_classes=27,
+            num_classes=276,
             target_means=[0., 0., 0., 0.],
             target_stds=[0.1, 0.1, 0.2, 0.2],
             reg_class_agnostic=True,
@@ -63,7 +69,7 @@ model = dict(
             in_channels=256,
             fc_out_channels=1024,
             roi_feat_size=7,
-            num_classes=27,
+            num_classes=276,
             target_means=[0., 0., 0., 0.],
             target_stds=[0.05, 0.05, 0.1, 0.1],
             reg_class_agnostic=True,
@@ -81,7 +87,7 @@ model = dict(
             in_channels=256,
             fc_out_channels=1024,
             roi_feat_size=7,
-            num_classes=27,
+            num_classes=276,
             target_means=[0., 0., 0., 0.],
             target_stds=[0.033, 0.033, 0.067, 0.067],
             reg_class_agnostic=True,
@@ -104,24 +110,10 @@ model = dict(
         num_convs=4,
         in_channels=256,
         conv_out_channels=256,
-        num_classes=27,
+        num_classes=276,
         loss_mask=dict(
-            type='CrossEntropyLoss', use_mask=True, loss_weight=1.0)),
-    semantic_roi_extractor=dict(
-        type='SingleRoIExtractor',
-        roi_layer=dict(type='RoIAlign', out_size=14, sample_num=2),
-        out_channels=256,
-        featmap_strides=[8]),
-    semantic_head=dict(
-        type='FusedSemanticHead',
-        num_ins=5,
-        fusion_level=1,
-        num_convs=4,
-        in_channels=256,
-        conv_out_channels=256,
-        num_classes=183,
-        ignore_label=255,
-        loss_weight=0.2))
+            type='CrossEntropyLoss', use_mask=True, loss_weight=1.0))
+    )
 # model training and testing settings
 train_cfg = dict(
     rpn=dict(
@@ -209,30 +201,30 @@ test_cfg = dict(
     rcnn=dict(
         score_thr=0.001,
         nms=dict(type='nms', iou_thr=0.5),
-        max_per_img=100,
+        max_per_img=50,
         mask_thr_binary=0.5),
     keep_all_stages=False)
 # dataset settings
-dataset_type = 'SegParentCustomDataset'
-data_root = '/mnt/chicm/data/open-images'
-
+dataset_type = 'SegCustomDataset'
+data_root = '/home/chec/data/open-images'
 img_norm_cfg = dict(
     mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_rgb=True)
 data = dict(
-    imgs_per_gpu=1,
-    workers_per_gpu=1,
+    imgs_per_gpu=3,
+    workers_per_gpu=3,
     train=dict(
         type=dataset_type,
         ann_file='train',
         img_prefix=data_root + '/train/imgs',
-        img_scale=(1024, 640),
+        img_scale=[(1024, 683), (1024, 768)],
+        multiscale_mode='range',
         img_norm_cfg=img_norm_cfg,
         size_divisor=32,
         flip_ratio=0.5,
-        seg_scale_factor=1 / 8,
         with_mask=True,
         with_crowd=False,
         with_label=True,
+        with_semantic_seg=False,
         extra_aug=dict(
             photo_metric_distortion=dict(
                 brightness_delta=20,
@@ -248,7 +240,7 @@ data = dict(
         type=dataset_type,
         ann_file='val',
         img_prefix=data_root + '/val',
-        img_scale=(1024, 640),
+        img_scale=(1024, 683),
         img_norm_cfg=img_norm_cfg,
         size_divisor=32,
         flip_ratio=0,
@@ -257,9 +249,9 @@ data = dict(
         with_label=True),
     test=dict(
         type=dataset_type,
-        ann_file=data_root + 'test',
+        ann_file='test',
         img_prefix=data_root + '/test',
-        img_scale=(1024, 640),
+        img_scale=(1024, 768),
         img_norm_cfg=img_norm_cfg,
         size_divisor=32,
         flip_ratio=0,
@@ -267,7 +259,7 @@ data = dict(
         with_label=False,
         test_mode=True))
 # optimizer
-optimizer = dict(type='Adam', lr=0.0002, weight_decay=0.0001)
+optimizer = dict(type='SGD', lr=0.01, momentum=0.9, weight_decay=0.0001)
 optimizer_config = dict(grad_clip=dict(max_norm=35, norm_type=2))
 # learning policy
 lr_config = dict(
@@ -275,12 +267,10 @@ lr_config = dict(
     warmup='linear',
     warmup_iters=500,
     warmup_ratio=1.0 / 3,
-    #step=[4000, 16000, 30000],
-    step=[1000, 3000, 8000],
-    gamma=0.5,
-    by_epoch=False)
+    step=[5, 15])
 #checkpoint_config = dict(interval=1)
 checkpoint_config = CheckpointHook(interval=500) #dict(interval=1)
+
 # yapf:disable
 log_config = dict(
     interval=50,
@@ -290,10 +280,10 @@ log_config = dict(
     ])
 # yapf:enable
 # runtime settings
-total_epochs = 2
+total_epochs = 20
 dist_params = dict(backend='nccl')
 log_level = 'INFO'
-work_dir = './work_dirs/htc_x101_64x4d_fpn_20e_parent'
+work_dir = './work_dirs/htc_level1_275'
 load_from = None
 resume_from = None
 workflow = [('train', 1)]

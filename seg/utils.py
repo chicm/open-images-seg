@@ -81,3 +81,86 @@ def parallel_apply(df, func, n_cores=24):
     pool.close()
     pool.join()
     return df
+
+def general_ensemble(dets, iou_thresh = 0.5, weights=None):
+    assert(type(iou_thresh) == float)
+    
+    ndets = len(dets)
+    
+    if weights is None:
+        w = 1/float(ndets)
+        weights = [w]*ndets
+    else:
+        assert(len(weights) == ndets)
+        
+        s = sum(weights)
+        for i in range(0, len(weights)):
+            weights[i] /= s
+
+    out = list()
+    used = list()
+    
+    for idet in range(0,ndets):
+        det = dets[idet]
+        for box in det:
+            if box[2] in used:
+                continue
+                
+            used.append(box[2])
+            # Search the other detectors for overlapping box of same class
+            found = []
+            for iodet in range(0, ndets):
+                odet = dets[iodet]
+                
+                if iodet == idet:
+                    continue
+                
+                bestbox = None
+                bestiou = iou_thresh
+                for obox in odet:
+                    if not obox[2] in used:
+                        # Not already used
+                        if box[1] == obox[1]:
+                            # Same class
+                            iou = computeIOU(box[0], obox[0])
+                            if iou > bestiou:
+                                bestiou = iou
+                                bestbox = obox
+                                
+                if not bestbox is None:
+                    w = weights[iodet]
+                    found.append((bestbox,w))
+                    used.append(bestbox[2])
+                            
+            # Now we've gone through all other detectors
+            if len(found) == 0:
+                new_box = list(box)
+                new_box[2] /= ndets
+                out.append(new_box)
+            else:
+                allboxes = [(box, weights[idet])]
+                allboxes.extend(found)
+                
+                conf = 0.0
+                
+                wsum = 0.0
+                masks = []
+                for bb in allboxes:
+                    w = bb[1]
+                    wsum += w
+                    b = bb[0]
+                    conf += w*b[2]
+                    masks.append(b[0].astype(np.float32))
+                
+                new_mask = (np.mean(masks, 0) > 0.51).astype(np.uint8)
+                new_box = [new_mask, box[1], conf]
+                out.append(new_box)
+    return out
+
+
+def computeIOU(mask1, mask2):
+    
+    intersect_area = ((mask1 * mask2) > 0).sum()
+    
+    iou = intersect_area / ((mask1 + mask2) > 0).sum()
+    return iou

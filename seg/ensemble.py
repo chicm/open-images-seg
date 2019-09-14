@@ -76,9 +76,9 @@ def submit(args):
     #with open(args.pred_file, 'rb') as f:
     #    preds = pickle.load(f)
     print('loading...')
-    with open('../work_dirs/htc_level1_275/preds_0913am_all_lb4304.pkl', 'rb') as f:
+    with open('../preds_0913am_all_lb4304.pkl', 'rb') as f:
         preds1 = pickle.load(f)
-    with open('../preds_0902_3_50_all_lb04195.pkl', 'rb') as f:
+    with open('../work_dirs/cascade_mask_rcnn_x101_64x4d_fpn_1x/preds_0902_3_50_all_lb04195.pkl', 'rb') as f:
         preds2 = pickle.load(f)
 
     print('len(preds):', len(preds1))
@@ -86,13 +86,13 @@ def submit(args):
     print('specified num classes:', len(classes))
     #assert len(preds[0][1]) == len(classes)
 
-    #with Pool(24) as p:
-        #num_imgs = len(preds1)
+    with Pool(24) as p:
+        num_imgs = len(preds1)
         #ens_dets = list(tqdm(iterable=p.map(get_ens_det, list(range(num_imgs))), total=num_imgs))
-        #ens_dets = p.map(get_ens_det, range(num_imgs))
-    num_imgs = len(preds1)
-    for idx in tqdm(range(num_imgs), total=num_imgs):
-        ens_dets.append(get_ens_det(idx))
+        ens_dets = p.map(get_ens_det, range(num_imgs))
+    #num_imgs = len(preds1)
+    #for idx in tqdm(range(num_imgs), total=num_imgs):
+    #    ens_dets.append(get_ens_det(idx))
 
     print('getting img size...')
     df_test = pd.read_csv(osp.join(DATA_DIR, 'sample_empty_submission.csv'))

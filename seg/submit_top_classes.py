@@ -97,7 +97,7 @@ if __name__ == '__main__':
     parser.add_argument('--pred_file', type=str, required=True)
     parser.add_argument('--out', type=str, required=True)
     parser.add_argument('--th', type=float, default=0.)
-    parser.add_argument('--start_index', type=int, default=100)
+    parser.add_argument('--start_index', type=int, default=0)
     parser.add_argument('--end_index', type=int, default=275)
     parser.add_argument('--class_file', type=str, default='top_classes_level1.csv')
     args = parser.parse_args()

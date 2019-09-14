@@ -17,6 +17,7 @@ from settings import DATA_DIR, TEST_IMG_DIR
 from utils import get_image_size, parallel_apply, encode_binary_mask, general_ensemble
 
 preds1, preds2, classes, ens_dets = None, None, None, []
+preds3 = None
 
 def get_top_classes(start_index, end_index, class_file='top_classes_level1.csv'):
     df = pd.read_csv(osp.join(DATA_DIR, class_file))
@@ -46,7 +47,9 @@ def get_dets(preds, idx):
 def get_ens_det(idx):
     det1 = get_dets(preds1, idx)
     det2 = get_dets(preds2, idx)
-    ens_det = general_ensemble([det1, det2], weights=[0.6, 0.4])
+    det3 = get_dets(preds3, idx)
+    
+    ens_det = general_ensemble([det1, det2, det3], weights=[0.5, 0.3, 0.2])
     ens_det = [[encode_binary_mask(x[0].astype(np.bool)), x[1], x[2]] for x in ens_det]
 
     #del det1, det2
@@ -69,17 +72,19 @@ def set_pred_str(df):
     return df
 
 def submit(args):
-    global preds1, preds2, classes, ens_dets
+    global preds1, preds2, preds3, classes, ens_dets
 
     classes, _ = get_top_classes(args.start_index, args.end_index, args.class_file)
     #print('loading {}...'.format(args.pred_file))
     #with open(args.pred_file, 'rb') as f:
     #    preds = pickle.load(f)
     print('loading...')
-    with open('../preds_0913am_all_lb4304.pkl', 'rb') as f:
+    with open('../work_dirs/htc_level1_275/preds_0913pm_all_lb4343.pkl', 'rb') as f:
         preds1 = pickle.load(f)
-    with open('../work_dirs/cascade_mask_rcnn_x101_64x4d_fpn_1x/preds_0902_3_50_all_lb04195.pkl', 'rb') as f:
+    with open('../preds_0902_3_50_all_lb04195.pkl', 'rb') as f:
         preds2 = pickle.load(f)
+    with open('../work_dirs/htc_level1_275/preds_0913am_all_lb4304.pkl', 'rb') as f:
+        preds3 = pickle.load(f)
 
     print('len(preds):', len(preds1))
     print('num classes of preds:', len(preds1[0][1]))

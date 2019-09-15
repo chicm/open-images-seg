@@ -197,7 +197,7 @@ test_cfg = dict(
     keep_all_stages=False)
 # dataset settings
 dataset_type = 'SegParentCustomDataset'
-data_root = '/mnt/chicm/data/open-images'
+data_root = '/home/chec/data/open-images'
 
 img_norm_cfg = dict(
     mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_rgb=True)
@@ -208,7 +208,7 @@ data = dict(
         type=dataset_type,
         ann_file='train',
         img_prefix=data_root + '/train/imgs',
-        img_scale=(1024, 640),
+        img_scale=[(1024, 768),(1024, 683)],
         img_norm_cfg=img_norm_cfg,
         size_divisor=32,
         flip_ratio=0.5,
@@ -230,7 +230,7 @@ data = dict(
         type=dataset_type,
         ann_file='val',
         img_prefix=data_root + '/val',
-        img_scale=(1024, 640),
+        img_scale=(1024, 768),
         img_norm_cfg=img_norm_cfg,
         size_divisor=32,
         flip_ratio=0,
@@ -241,7 +241,7 @@ data = dict(
         type=dataset_type,
         ann_file='test',
         img_prefix=data_root + '/test',
-        img_scale=(1024, 640),
+        img_scale=(1024, 768),
         img_norm_cfg=img_norm_cfg,
         size_divisor=32,
         flip_ratio=0,
@@ -278,7 +278,7 @@ log_config = dict(
 total_epochs = 2
 dist_params = dict(backend='nccl')
 log_level = 'INFO'
-work_dir = './work_dirs/parent_cascade_mask_rcnn_x101_64x4d_fpn_1x'
-load_from = './work_dirs/parent_cascade_mask_rcnn_x101_64x4d_fpn_1x/latest.pth'
+work_dir = './work_dirs/cas_parent_25'
+load_from = './work_dirs/cas_parent_25/latest.pth'
 resume_from = None
 workflow = [('train', 1)]

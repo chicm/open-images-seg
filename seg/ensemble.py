@@ -19,6 +19,8 @@ from utils import get_image_size, parallel_apply, encode_binary_mask, general_en
 preds1, preds2, classes, ens_dets = None, None, None, []
 preds3 = None
 
+MAX_NUM = 70
+
 def get_top_classes(start_index, end_index, class_file='top_classes_level1.csv'):
     df = pd.read_csv(osp.join(DATA_DIR, class_file))
     c = df['class'].values[start_index:end_index]
@@ -53,7 +55,7 @@ def get_ens_det(idx):
     ens_det = [[encode_binary_mask(x[0].astype(np.bool)), x[1], x[2]] for x in ens_det]
 
     #del det1, det2
-    return sorted(ens_det, key=lambda x: x[2], reverse=True)[:50]
+    return sorted(ens_det, key=lambda x: x[2], reverse=True)[:MAX_NUM]
 
 def get_pred_str(idx):
     #masks, labels, confs = get_mask(idx)
@@ -72,7 +74,8 @@ def set_pred_str(df):
     return df
 
 def submit(args):
-    global preds1, preds2, preds3, classes, ens_dets
+    global preds1, preds2, preds3, classes, ens_dets, MAX_NUM
+    MAX_NUM = args.max_num
 
     classes, _ = get_top_classes(args.start_index, args.end_index, args.class_file)
     #print('loading {}...'.format(args.pred_file))
@@ -122,6 +125,8 @@ if __name__ == '__main__':
     parser.add_argument('--start_index', type=int, default=0)
     parser.add_argument('--end_index', type=int, default=275)
     parser.add_argument('--class_file', type=str, default='top_classes_level1.csv')
+    parser.add_argument('--max_num', type=int, default=70)
+
     args = parser.parse_args()
     print(args)
 

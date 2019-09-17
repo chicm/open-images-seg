@@ -135,7 +135,8 @@ def general_ensemble(dets, iou_thresh = 0.5, weights=None):
             # Now we've gone through all other detectors
             if len(found) == 0:
                 new_box = list(box)
-                new_box[2] /= ndets
+                #new_box[2] /= ndets
+                new_box[2] *= weights[idet]
                 out.append(new_box)
             else:
                 allboxes = [(box, weights[idet])]
@@ -143,16 +144,19 @@ def general_ensemble(dets, iou_thresh = 0.5, weights=None):
                 
                 conf = 0.0
                 
-                wsum = 0.0
-                masks = []
+                #wsum = 0.0
+                masks, mask_w = [], []
                 for bb in allboxes:
                     w = bb[1]
-                    wsum += w
+                    #wsum += w
                     b = bb[0]
                     conf += w*b[2]
                     masks.append(b[0].astype(np.float32))
+                    mask_w.append(w)
                 
-                new_mask = (np.mean(masks, 0) > 0.51).astype(np.uint8)
+                #new_mask = (np.mean(masks, 0) > 0.51).astype(np.uint8)
+                new_mask = (np.average(masks, 0, weights=mask_w) > 0.5).astype(np.uint8)
+
                 new_box = [new_mask, box[1], conf]
                 out.append(new_box)
     return out

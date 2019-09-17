@@ -81,12 +81,14 @@ def submit(args):
     #print('loading {}...'.format(args.pred_file))
     #with open(args.pred_file, 'rb') as f:
     #    preds = pickle.load(f)
-    print('loading...')
-    with open('../work_dirs/htc_level1_275/preds_0913pm_all_lb4343.pkl', 'rb') as f:
+    print('loading1...')
+    with open('../work_dirs/htc_level1_275/preds_0916pm_all_lb4456.pkl', 'rb') as f:
         preds1 = pickle.load(f)
+    print('loading2...')
     with open('../preds_0902_3_50_all_lb04195.pkl', 'rb') as f:
         preds2 = pickle.load(f)
-    with open('../work_dirs/htc_level1_275/preds_0913am_all_lb4304.pkl', 'rb') as f:
+    print('loading3...')
+    with open('../work_dirs/htc_level1_275/preds_0913pm_all_lb4343.pkl', 'rb') as f:
         preds3 = pickle.load(f)
 
     print('len(preds):', len(preds1))

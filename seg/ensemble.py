@@ -17,15 +17,19 @@ from settings import DATA_DIR, TEST_IMG_DIR
 from utils import get_image_size, parallel_apply, encode_binary_mask, general_ensemble
 
 pred_files = [
+    '../work_dirs/htc_level1_275/preds_0918pm_all_lb4478.pkl',
     '../work_dirs/htc_level1_275/preds_0916pm_all_lb4456.pkl',
-    '../preds_0902_3_50_all_lb04195.pkl',
-    '../work_dirs/htc_level1_275/preds_0913pm_all_lb4343.pkl'
+    #'../work_dirs/htc_level1_275/preds_0917pm_all_683.pkl',
+    #'../preds_0902_3_50_all_lb04195.pkl',
+    #'../preds_cas275_0917pm_lb4248.pkl',
+    '../preds_cas275_0918pm_lb4279.pkl'
+    #'../work_dirs/htc_level1_275/preds_0913pm_all_lb4343.pkl'
 ]
 ens_weights = [0.5, 0.2, 0.3]
 
 all_preds, ens_dets, classes = [], [], None
 
-MAX_NUM = 70
+MAX_NUM = 100
 
 def get_top_classes(start_index, end_index, class_file='top_classes_level1.csv'):
     df = pd.read_csv(osp.join(DATA_DIR, class_file))
@@ -117,7 +121,7 @@ if __name__ == '__main__':
     parser.add_argument('--start_index', type=int, default=0)
     parser.add_argument('--end_index', type=int, default=275)
     parser.add_argument('--class_file', type=str, default='top_classes_level1.csv')
-    parser.add_argument('--max_num', type=int, default=70)
+    parser.add_argument('--max_num', type=int, default=100)
 
     args = parser.parse_args()
     print(args)

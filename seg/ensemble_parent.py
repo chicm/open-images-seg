@@ -24,67 +24,19 @@ from utils import get_image_size, parallel_apply, encode_binary_mask, general_en
 #]
 #ens_weights = [0.5, 0.2, 0.3]
 
-# lb 4607
-#pred_files = [
-#    '../work_dirs/htc_level1_275/preds_0918pm_all_lb4478.pkl',
-#    '../work_dirs/htc_level1_275/preds_0916pm_all_lb4456.pkl',
-#    '../preds_0902_3_50_all_lb04195.pkl',
-#    '../preds_cas275_0918pm_lb4279.pkl',
-#    '../work_dirs/htc_level1_275/preds_0913pm_all_lb4343.pkl'
-#]
-#ens_weights = [0.35, 0.22, 0.15, 0.18, 0.1]
-
-#lb4645
-#pred_files = [
-#    '../work_dirs/htc_level1_275/preds_0919pm_all_lb4495.pkl',
-#    '../work_dirs/htc_level1_275/preds_0918pm_all_lb4478.pkl',
-#    '../work_dirs/htc_level1_275/preds_0916pm_all_lb4456.pkl',
-#    '../preds_cas275_0918pm_lb4279.pkl',
-#    '../preds_cas275_0919pm_all.pkl'
-#]
-#ens_weights = [0.35, 0.2, 0.12, 0.15, 0.18]
-
-#pred_files = [
-#    '../work_dirs/htc_level1_275/preds_0919pm_all_lb4495.pkl',
-#    '../work_dirs/htc_level1_275/preds_0918pm_all_lb4478.pkl',
-#    '../work_dirs/htc_level1_275/preds_0916pm_all_lb4456.pkl',
-#    '../work_dirs/htc_level1_275/preds_0917pm_all_683_lb4436.pkl',
-#    '../preds_cas275_0919pm_all_lb4351.pkl',
-#    '../preds_cas275_0918pm_lb4279.pkl',
-#    '../preds_cas275_0917pm_lb4248.pkl'
-#]
-#ens_weights = [0.3, 0.13, 0.12, 0.1, 0.15, 0.1, 0.1]
-
-#pred_files = [
-#    '../work_dirs/htc_level1_275/preds_0921_all_lb4521.pkl',
-#    '../work_dirs/htc_level1_275/preds_0919pm_all_lb4495.pkl',
-#    '../work_dirs/htc_level1_275/preds_0918pm_all_lb4478.pkl',
-#    '../work_dirs/htc_level1_275/preds_0916pm_all_lb4456.pkl',
-#    '../preds_cas275_0919pm_all_lb4351.pkl',
-#    '../work_dirs/cas_level1_275/preds_cas275_0921_all_lb4349.pkl',
-#    '../preds_cas275_0918pm_lb4279.pkl'
-#]
-#ens_weights = [0.3, 0.13, 0.12, 0.1, 0.15, 0.1, 0.1]
-
-
 pred_files = [
-    '../work_dirs/htc_level1_275/preds_0922pm_all_lb4560.pkl',
-    '../work_dirs/htc_level1_275/preds_0921_all_lb4521.pkl',
-    '../work_dirs/htc_level1_275/preds_0919pm_all_lb4495.pkl',
-    '../work_dirs/htc_level1_275/preds_0918pm_all_lb4478.pkl',
-    '../preds_cas275_0919pm_all_lb4351.pkl',
-    '../preds_cas275_0918pm_lb4279.pkl',
-    '../preds_cas275_0917pm_lb4248.pkl'
+    '../work_dirs/htc_parent_25/preds_0919pm_all.pkl',
+    '../work_dirs/htc_parent_25/preds_0916am_lb0328.pkl',
+    '../preds_cas_parent_0919pm_all.pkl'
 ]
-ens_weights = [0.3, 0.13, 0.12, 0.1, 0.15, 0.1, 0.1]
-
+ens_weights = [0.4, 0.3, 0.3]
 
 
 all_preds, ens_dets, classes = [], [], None
 
-MAX_NUM = 160
+MAX_NUM = 50
 
-def get_top_classes(start_index, end_index, class_file='top_classes_level1.csv'):
+def get_top_classes(start_index, end_index, class_file='top_classes_parent.csv'):
     df = pd.read_csv(osp.join(DATA_DIR, class_file))
     c = df['class'].values[start_index:end_index]
     #print(df.head())
@@ -95,7 +47,6 @@ def get_fn(img_id):
     return TEST_IMG_DIR + '/' + img_id + '.jpg'
 
 def get_dets(preds, idx):
-    print('index:', idx)
     box_pred, mask_pred = preds[idx]
     dets = []
     for i in range(len(classes)):
@@ -173,9 +124,9 @@ if __name__ == '__main__':
     parser.add_argument('--out', type=str, required=True)
     parser.add_argument('--th', type=float, default=0.)
     parser.add_argument('--start_index', type=int, default=0)
-    parser.add_argument('--end_index', type=int, default=275)
-    parser.add_argument('--class_file', type=str, default='top_classes_level1.csv')
-    parser.add_argument('--max_num', type=int, default=160)
+    parser.add_argument('--end_index', type=int, default=25)
+    parser.add_argument('--class_file', type=str, default='top_classes_parent.csv')
+    parser.add_argument('--max_num', type=int, default=50)
 
     args = parser.parse_args()
     print(args)

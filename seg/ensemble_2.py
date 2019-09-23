@@ -76,7 +76,7 @@ pred_files = [
     '../preds_cas275_0918pm_lb4279.pkl',
     '../preds_cas275_0917pm_lb4248.pkl'
 ]
-ens_weights = [0.3, 0.13, 0.12, 0.1, 0.15, 0.1, 0.1]
+ens_weights = [0.25, 0.20, 0.15, 0.1, 0.1, 0.1, 0.1]
 
 
 

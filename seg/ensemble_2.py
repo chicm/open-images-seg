@@ -11,7 +11,7 @@ from tqdm import tqdm
 import glob
 import pickle
 import pycocotools.mask as mutils
-from multiprocessing import Pool
+from multiprocessing import Pool, Value
 
 from settings import DATA_DIR, TEST_IMG_DIR
 from utils import get_image_size, parallel_apply, encode_binary_mask, general_ensemble
@@ -79,18 +79,18 @@ from utils import get_image_size, parallel_apply, encode_binary_mask, general_en
 #ens_weights = [0.25, 0.20, 0.15, 0.1, 0.1, 0.1, 0.1]
 
 # no memory to ensmble 9 models
-#pred_files = [
-#    '../work_dirs/htc_level1_275/preds_0922pm_all_lb4560.pkl',
-#    '../work_dirs/htc_level1_275/preds_0921_all_lb4521.pkl',
-#    '../work_dirs/htc_level1_275/preds_0919pm_all_lb4495.pkl',
-#    '../work_dirs/htc_level1_275/preds_0918pm_all_lb4478.pkl',
-#    '../work_dirs/htc_level1_275/preds_0917pm_all_683_lb4436.pkl',
-#    '../preds_cas275_0919pm_all_lb4351.pkl',
-#    '../preds_cas275_0918pm_lb4279.pkl',
-#    '../preds_cas275_0917pm_lb4248.pkl',
-#    '../preds_0902_3_50_all_lb04195.pkl'
-#]
-#ens_weights = [0.2, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
+pred_files = [
+    '../work_dirs/htc_level1_275/preds_0922pm_all_lb4560.pkl',
+    '../work_dirs/htc_level1_275/preds_0921_all_lb4521.pkl',
+    '../work_dirs/htc_level1_275/preds_0919pm_all_lb4495.pkl',
+    '../work_dirs/htc_level1_275/preds_0918pm_all_lb4478.pkl',
+    '../work_dirs/htc_level1_275/preds_0917pm_all_683_lb4436.pkl',
+    '../preds_cas275_0919pm_all_lb4351.pkl',
+    '../preds_cas275_0918pm_lb4279.pkl',
+    '../preds_cas275_0917pm_lb4248.pkl',
+    '../preds_0902_3_50_all_lb04195.pkl'
+]
+ens_weights = [0.2, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
 
 # lb4593
 #pred_files = [
@@ -112,23 +112,32 @@ from utils import get_image_size, parallel_apply, encode_binary_mask, general_en
 #]
 #ens_weights = [0.2, 0.2, 0.2, 0.2, 0.2]
 
-pred_files = [
-    '../work_dirs/htc_level1_275/preds_0922pm_all_lb4560.pkl',
-    '../work_dirs/htc_level1_275/preds_0921_all_lb4521.pkl',
-    '../work_dirs/htc_level1_275/preds_0919pm_all_lb4495.pkl',
-    '../work_dirs/htc_level1_275/preds_0917pm_all_683_lb4436.pkl',
-    '../preds_cas275_0919pm_all_lb4351.pkl',
-    '../preds_cas275_0918pm_lb4279.pkl',
-    '../preds_0902_3_50_all_lb04195.pkl'
-]
-ens_weights = [0.2, 0.15, 0.15, 0.15, 0.15, 0.1, 0.1]
+#lb0.4693
+#pred_files = [
+#    '../work_dirs/htc_level1_275/preds_0922pm_all_lb4560.pkl',
+#    '../work_dirs/htc_level1_275/preds_0921_all_lb4521.pkl',
+#    '../work_dirs/htc_level1_275/preds_0919pm_all_lb4495.pkl',
+#    '../work_dirs/htc_level1_275/preds_0917pm_all_683_lb4436.pkl',
+#    '../preds_cas275_0919pm_all_lb4351.pkl',
+#    '../preds_cas275_0918pm_lb4279.pkl',
+#    '../preds_0902_3_50_all_lb04195.pkl'
+#]
+#ens_weights = [0.2, 0.15, 0.15, 0.15, 0.15, 0.1, 0.1]
 
 
 
 
 all_preds, ens_dets, classes = [], [], None
+bg_time = None
+counter = None
 
 MAX_NUM = 160
+
+def init(init_value):
+    ''' store the counter for later use '''
+    global counter
+    counter = init_value
+
 
 def get_top_classes(start_index, end_index, class_file='top_classes_level1.csv'):
     df = pd.read_csv(osp.join(DATA_DIR, class_file))
@@ -159,7 +168,16 @@ def get_ens_det(idx):
     ens_det = general_ensemble(dets, weights=ens_weights)
     ens_det = [[encode_binary_mask(x[0].astype(np.bool)), x[1], x[2]] for x in ens_det]
 
-    return sorted(ens_det, key=lambda x: x[2], reverse=True)[:MAX_NUM]
+    res = sorted(ens_det, key=lambda x: x[2], reverse=True)[:MAX_NUM]
+    del dets
+
+    global counter
+    # += operation is not atomic, so we need to get a lock:
+    with counter.get_lock():
+        counter.value += 1
+    if counter.value % 100 == 0:
+        print('counter: {}, {:.2f}'.format(counter.value, (time.time()-bg_time)/60))
+    return res
 
 def get_pred_str(idx):
     res = []
@@ -176,7 +194,7 @@ def set_pred_str(df):
     return df
 
 def ensemble(args):
-    global all_preds, classes, ens_dets, MAX_NUM
+    global all_preds, classes, ens_dets, MAX_NUM, bg_time
     MAX_NUM = args.max_num
 
     #print('getting img size...')
@@ -196,7 +214,11 @@ def ensemble(args):
     print('specified num classes:', len(classes))
     #assert len(preds[0][1]) == len(classes)
 
-    with Pool(24) as p:
+    print('ensembling...')
+    bg_time = time.time()
+    counter = Value('i', 0)
+
+    with Pool(24, initializer=init, initargs=(counter, )) as p:
         num_imgs = len(all_preds[0])
         #ens_dets = list(tqdm(iterable=p.map(get_ens_det, list(range(num_imgs))), total=num_imgs))
         ens_dets = p.map(get_ens_det, range(num_imgs))

@@ -66,17 +66,63 @@ from utils import get_image_size, parallel_apply, encode_binary_mask, general_en
 #]
 #ens_weights = [0.3, 0.13, 0.12, 0.1, 0.15, 0.1, 0.1]
 
+# lb5026 - 0.0335 =  4691
+#pred_files = [
+#    '../work_dirs/htc_level1_275/preds_0922pm_all_lb4560.pkl',
+#    '../work_dirs/htc_level1_275/preds_0921_all_lb4521.pkl',
+#    '../work_dirs/htc_level1_275/preds_0919pm_all_lb4495.pkl',
+#    '../work_dirs/htc_level1_275/preds_0918pm_all_lb4478.pkl',
+#    '../preds_cas275_0919pm_all_lb4351.pkl',
+#    '../preds_cas275_0918pm_lb4279.pkl',
+#    '../preds_cas275_0917pm_lb4248.pkl'
+#]
+#ens_weights = [0.25, 0.20, 0.15, 0.1, 0.1, 0.1, 0.1]
+
+# no memory to ensmble 9 models
+#pred_files = [
+#    '../work_dirs/htc_level1_275/preds_0922pm_all_lb4560.pkl',
+#    '../work_dirs/htc_level1_275/preds_0921_all_lb4521.pkl',
+#    '../work_dirs/htc_level1_275/preds_0919pm_all_lb4495.pkl',
+#    '../work_dirs/htc_level1_275/preds_0918pm_all_lb4478.pkl',
+#    '../work_dirs/htc_level1_275/preds_0917pm_all_683_lb4436.pkl',
+#    '../preds_cas275_0919pm_all_lb4351.pkl',
+#    '../preds_cas275_0918pm_lb4279.pkl',
+#    '../preds_cas275_0917pm_lb4248.pkl',
+#    '../preds_0902_3_50_all_lb04195.pkl'
+#]
+#ens_weights = [0.2, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
+
+# lb4593
+#pred_files = [
+#    '../work_dirs/htc_level1_275/preds_0917pm_all_683_lb4436.pkl',
+#    '../preds_cas275_0919pm_all_lb4351.pkl',
+#    '../preds_cas275_0918pm_lb4279.pkl',
+#    '../preds_cas275_0917pm_lb4248.pkl',
+#    '../preds_0902_3_50_all_lb04195.pkl'
+#]
+#ens_weights = [0.2, 0.2, 0.2, 0.2, 0.2]
+
+#lb 4574
+#pred_files = [
+#    '../work_dirs/htc_level1_275/preds_0922pm_all_lb4560.pkl',
+#    '../work_dirs/htc_level1_275/preds_0921_all_lb4521.pkl',
+#    '../work_dirs/htc_level1_275/preds_0919pm_all_lb4495.pkl',
+#    '../work_dirs/htc_level1_275/preds_0918pm_all_lb4478.pkl',
+#    '../work_dirs/htc_level1_275/preds_0925am_all_lb4549.pkl'
+#]
+#ens_weights = [0.2, 0.2, 0.2, 0.2, 0.2]
 
 pred_files = [
     '../work_dirs/htc_level1_275/preds_0922pm_all_lb4560.pkl',
     '../work_dirs/htc_level1_275/preds_0921_all_lb4521.pkl',
     '../work_dirs/htc_level1_275/preds_0919pm_all_lb4495.pkl',
-    '../work_dirs/htc_level1_275/preds_0918pm_all_lb4478.pkl',
+    '../work_dirs/htc_level1_275/preds_0917pm_all_683_lb4436.pkl',
     '../preds_cas275_0919pm_all_lb4351.pkl',
     '../preds_cas275_0918pm_lb4279.pkl',
-    '../preds_cas275_0917pm_lb4248.pkl'
+    '../preds_0902_3_50_all_lb04195.pkl'
 ]
-ens_weights = [0.25, 0.20, 0.15, 0.1, 0.1, 0.1, 0.1]
+ens_weights = [0.2, 0.15, 0.15, 0.15, 0.15, 0.1, 0.1]
+
 
 
 
@@ -133,6 +179,12 @@ def ensemble(args):
     global all_preds, classes, ens_dets, MAX_NUM
     MAX_NUM = args.max_num
 
+    #print('getting img size...')
+    df_test = pd.read_csv(osp.join(DATA_DIR, 'sample_empty_submission.csv'))
+    print(df_test.head())
+    #df_test.ImageWidth = df_test.ImageID.map(lambda x: get_image_size(get_fn(x))[0])
+    #df_test.ImageHeight = df_test.ImageID.map(lambda x: get_image_size(get_fn(x))[1])
+
     classes, _ = get_top_classes(args.start_index, args.end_index, args.class_file)
     for fn in pred_files:
         print('loading {} ...'.format(fn))
@@ -151,11 +203,6 @@ def ensemble(args):
     #num_imgs = len(preds1)
     #for idx in tqdm(range(num_imgs), total=num_imgs):
     #    ens_dets.append(get_ens_det(idx))
-
-    print('getting img size...')
-    df_test = pd.read_csv(osp.join(DATA_DIR, 'sample_empty_submission.csv'))
-    df_test.ImageWidth = df_test.ImageID.map(lambda x: get_image_size(get_fn(x))[0])
-    df_test.ImageHeight = df_test.ImageID.map(lambda x: get_image_size(get_fn(x))[1])
 
     print('creating submission...')
 

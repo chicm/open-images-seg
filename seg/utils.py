@@ -1,3 +1,4 @@
+import os
 import struct
 import imghdr
 import base64
@@ -11,7 +12,7 @@ import numpy as np
 from settings import DATA_DIR
 
 def get_top_classes(start_index, end_index, class_file='top_classes_level1.csv'):
-    df = pd.read_csv(osp.join(DATA_DIR, class_file))
+    df = pd.read_csv(os.path.join(DATA_DIR, class_file))
     c = df['class'].values[start_index:end_index]
     #print(df.head())
     stoi = { c[i]: i for i in range(len(c)) }

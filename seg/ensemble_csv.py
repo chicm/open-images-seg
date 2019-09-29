@@ -15,17 +15,42 @@ from multiprocessing import Pool, Value
 from settings import DATA_DIR, TEST_IMG_DIR
 from utils import get_image_size, parallel_apply, encode_binary_mask, general_ensemble
 
+# lb 0.4712 = 0.5050 - 0.0338
+#csv_files = [
+#    '../sub_htc275_lb4560_top100_iou03_mask42_lb4619.csv',
+#    '../sub_cas275_0919pm_all_lb4351.csv',
+#    '../sub_od_convert_0928_top300_275.csv'
+#]
+#ens_weights = [0.5, 0.3, 0.2]
 
+
+# top145 lb: 0.5088 - 0.331
+#csv_files = [
+#    '../sub_htc275_lb4560_rpn1500_iou25_mask50_top100_lb4632.csv',
+#    '../sub_htc275_0927am_lb4533.csv',
+#    '../sub_htc275_0917pm_683_lb4436.csv',
+#    '../sub_cas275_lb4351_rpn1500_iou25_mask50_top100_lb4433.csv',
+#    '../sub_cas275_0925am_lb4341.csv'
+#]
+#ens_weights = [0.4, 0.15, 0.15, 0.2, 0.1]
+
+#lb
 csv_files = [
-    '/mnt/chicm/data/open-images/segmentation/sub_0902_3_top50.csv.zip',
-    '/mnt/chicm/data/open-images/segmentation/merge_0903_1.csv'
+    '../sub_htc275_lb4560_rpn1500_iou25_mask50_top100_lb4632.csv',
+    '../sub_htc275_0927am_lb4533_rpn1500_iou25_mask50_top50.csv',
+    '../sub_htc275_0919pm_lb4496_863_rpn1500_iou25_mask50_top50.csv',
+    '../sub_htc275_0921_lb4521.csv',
+    '../sub_cas275_lb4351_rpn1500_iou25_mask50_top100_lb4433.csv',
+    '../sub_cas275_0925am_lb4341.csv',
+    '../sub_cas275_0917pm_lb4248.csv'
 ]
-ens_weights = [0.7, 0.3]
+ens_weights = [0.3, 0.15, 0.1, 0.1, 0.15, 0.1, 0.1]
+
 
 dfs, ens_dets = [], []
 bg_time = None
 
-MAX_NUM = 160
+MAX_NUM = 150
 
 counter = None
 
@@ -109,6 +134,10 @@ def ensemble(args):
     for df in dfs:
         df.PredictionString = df.PredictionString.fillna('')
     #assert len(preds[0][1]) == len(classes)
+    for i in range(1, len(dfs)):
+        dfs[i] = dfs[i].set_index('ImageID')
+        dfs[i] = dfs[i].reindex(index=dfs[0]['ImageID'])
+        dfs[i] = dfs[i].reset_index()
 
     print('ensembling...')
     bg_time = time.time()
@@ -132,7 +161,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='create submission from pred file')
     #parser.add_argument('--pred_file', type=str, required=True)
     parser.add_argument('--out', type=str, required=True)
-    parser.add_argument('--max_num', type=int, default=160)
+    parser.add_argument('--max_num', type=int, default=150)
 
     args = parser.parse_args()
     print(args)

@@ -1,18 +1,17 @@
 import pandas as pd
 
 def merge_df(args):
+    # lb5050
+    #csv_files = [
+    #    'ens_0928_htc275_cas275_od275.csv',
+    #    '../sub_htc_parent_0927am_lb0338.csv'
+    #]
+    
     csv_files = [
-        #'ens_0919_5model_150.csv',
-        #'ens_0919_7model_160_2.csv',
-        #'ens_0921_7model_160.csv',
-        #'ens_0922_7model_160_1.csv',
-        'ens_0922_7models_w2.csv',
-        'ens_parent_0919_50.csv'
-        #'ens_0918_100.csv', # lb4590
-        #'../sub_htc_parent_0918pm_all.csv' #,
-        #'sub_0902_3_top50.csv.zip',
-        #'sub_parent_0903_1_top50.csv'
+        'ens_0929_1_5models_top145.csv',
+        '../sub_htc_parent_0929am_iou02_rpn2000_top20_lb0331.csv'
     ]
+
     print('loading {} ...'.format(csv_files))
     dfs = [pd.read_csv(x) for x in csv_files]
 
@@ -27,8 +26,9 @@ def merge_df(args):
             x = d.PredictionString
         else:
             x = x.str.cat(d.PredictionString, sep=' ')
-
-    dfs[0].PredictionString = x
+    
+    p = x.map(lambda s: ' '.join(s.split()))
+    dfs[0].PredictionString = p
 
     print('saving {} ...'.format(args.out))
     dfs[0].to_csv(args.out, index=False)

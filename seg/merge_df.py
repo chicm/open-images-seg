@@ -24,11 +24,18 @@ def merge_df(args):
     #    '../sub_htc_parent_0929am_iou02_rpn2000_top20_lb0331.csv',
     #    '../od_convert_0928_top100_filter275_lowconf.csv'
     #]
+
+    # lb5114    
+    #csv_files = [
+    #    'ens_0930_1_7models_top120.csv',
+    #    '../sub_htc_parent_0929am_iou02_rpn2000_top20_lb0331.csv',
+    #    '../notebooks/od_convert_0928_top50_275_lowconf1000.csv'
+    #]
     
     csv_files = [
-        'ens_0930_1_7models_top120.csv',
-        '../sub_htc_parent_0929am_iou02_rpn2000_top20_lb0331.csv',
-        '../notebooks/od_convert_0928_top50_275_lowconf1000.csv'
+        'ens_0930_9models_top150.csv',
+        '../sub_htc_parent_0927am_lb0338.csv'
+        #'../notebooks/od_convert_0928_top50_275_lowconf1000.csv'
     ]
 
 

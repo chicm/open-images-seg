@@ -7,16 +7,41 @@ def merge_df(args):
     #    '../sub_htc_parent_0927am_lb0338.csv'
     #]
     
+    # lb5088
+    #csv_files = [
+    #    'ens_0929_1_5models_top145.csv',
+    #    '../sub_htc_parent_0929am_iou02_rpn2000_top20_lb0331.csv'
+    #]
+
+    # lb5106
+    #csv_files = [
+    #    'ens_0930_1_7models_top138.csv',
+    #    '../sub_htc_parent_0929am_iou02_rpn2000_top20_lb0331.csv'
+    #]
+    # failed eval timeout
+    #csv_files = [
+    #    'ens_0930_1_7models_top120.csv',
+    #    '../sub_htc_parent_0929am_iou02_rpn2000_top20_lb0331.csv',
+    #    '../od_convert_0928_top100_filter275_lowconf.csv'
+    #]
+    
     csv_files = [
-        'ens_0929_1_5models_top145.csv',
-        '../sub_htc_parent_0929am_iou02_rpn2000_top20_lb0331.csv'
+        'ens_0930_1_7models_top120.csv',
+        '../sub_htc_parent_0929am_iou02_rpn2000_top20_lb0331.csv',
+        '../notebooks/od_convert_0928_top50_275_lowconf1000.csv'
     ]
+
 
     print('loading {} ...'.format(csv_files))
     dfs = [pd.read_csv(x) for x in csv_files]
 
     for df in dfs:
         df.PredictionString = df.PredictionString.fillna('')
+    
+    for i in range(1, len(dfs)):
+        dfs[i] = dfs[i].set_index('ImageID')
+        dfs[i] = dfs[i].reindex(index=dfs[0]['ImageID'])
+        dfs[i] = dfs[i].reset_index()
 
     print('merging...')
 

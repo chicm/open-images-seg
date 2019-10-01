@@ -34,17 +34,31 @@ from utils import get_image_size, parallel_apply, encode_binary_mask, general_en
 #]
 #ens_weights = [0.4, 0.15, 0.15, 0.2, 0.1]
 
-#lb
+#lb 0.5106 - 0.331
+#csv_files = [
+#    '../sub_htc275_lb4560_rpn1500_iou25_mask50_top100_lb4632.csv',
+#    '../sub_htc275_0927am_lb4533_rpn1500_iou25_mask50_top50.csv',
+#    '../sub_htc275_0919pm_lb4496_863_rpn1500_iou25_mask50_top50.csv',
+#    '../sub_htc275_0921_lb4521.csv',
+#    '../sub_cas275_lb4351_rpn1500_iou25_mask50_top100_lb4433.csv',
+#    '../sub_cas275_0925am_lb4341.csv',
+#    '../sub_cas275_0917pm_lb4248.csv'
+#]
+#ens_weights = [0.3, 0.15, 0.1, 0.1, 0.15, 0.1, 0.1]
+
 csv_files = [
     '../sub_htc275_lb4560_rpn1500_iou25_mask50_top100_lb4632.csv',
     '../sub_htc275_0927am_lb4533_rpn1500_iou25_mask50_top50.csv',
     '../sub_htc275_0919pm_lb4496_863_rpn1500_iou25_mask50_top50.csv',
     '../sub_htc275_0921_lb4521.csv',
+    '../sub_htc275_0917pm_683_lb4436.csv',
     '../sub_cas275_lb4351_rpn1500_iou25_mask50_top100_lb4433.csv',
-    '../sub_cas275_0925am_lb4341.csv',
-    '../sub_cas275_0917pm_lb4248.csv'
+    '../sub_cas275_0925am_lb4341_rpn1500_iou25_mask50_top50.csv',
+    '../sub_cas275_0917pm_lb4248.csv',
+    '../notebooks/od_convert_0928_top100_275.csv'
 ]
-ens_weights = [0.3, 0.15, 0.1, 0.1, 0.15, 0.1, 0.1]
+ens_weights = [0.2, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
+
 
 
 dfs, ens_dets = [], []

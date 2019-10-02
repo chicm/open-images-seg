@@ -94,6 +94,7 @@ def parallel_apply(df, func, n_cores=24):
 
 def general_ensemble(dets, iou_thresh = 0.5, weights=None):
     assert(type(iou_thresh) == float)
+    total_founds = 0
     
     ndets = len(dets)
     
@@ -143,6 +144,7 @@ def general_ensemble(dets, iou_thresh = 0.5, weights=None):
                     used.append(bestbox[2])
                             
             # Now we've gone through all other detectors
+            total_founds += len(found)
             if len(found) == 0:
                 new_box = list(box)
                 #new_box[2] /= ndets
@@ -169,6 +171,7 @@ def general_ensemble(dets, iou_thresh = 0.5, weights=None):
 
                 new_box = [new_mask, box[1], conf]
                 out.append(new_box)
+    #print('founds:', total_founds)
     return out
 
 

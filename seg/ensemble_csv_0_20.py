@@ -46,40 +46,18 @@ from utils import get_image_size, parallel_apply, encode_binary_mask, general_en
 #]
 #ens_weights = [0.3, 0.15, 0.1, 0.1, 0.15, 0.1, 0.1]
 
-# lb5145 - 338
-#csv_files = [
-#    '../sub_htc275_lb4560_rpn1500_iou25_mask50_top100_lb4632.csv',
-#    '../sub_htc275_0927am_lb4533_rpn1500_iou25_mask50_top50.csv',
-#    '../sub_htc275_0919pm_lb4496_863_rpn1500_iou25_mask50_top50.csv',
-#    '../sub_htc275_0921_lb4521.csv',
-#    '../sub_htc275_0917pm_683_lb4436.csv',
-#    '../sub_cas275_lb4351_rpn1500_iou25_mask50_top100_lb4433.csv',
-#    '../sub_cas275_0925am_lb4341_rpn1500_iou25_mask50_top50.csv',
-#    '../sub_cas275_0917pm_lb4248.csv',
-#    '../notebooks/od_convert_0928_top100_275.csv'
-#]
-#ens_weights = [0.2, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
-
-# lb5146
-#csv_files = [
-#    'ens_0930_9models_top150.csv',
-#    '../sub_htc275_lb4560_od619_manual_rpn_top100.csv'
-#]
-#ens_weights = [0.7, 0.3]
-
 csv_files = [
-    'merge_0930_9models_lb5145.csv',
-    '../sub_od627_275_softnms_top50.csv',
-    '../notebooks/od628_mask_300_top50.csv'
+    'merge_0930_9models_lb5145_0_20.csv',
+    '../sub_htc_0_20_0929_rpn1500_iou25.csv'
 ]
-ens_weights = [0.6, 0.25, 0.15]
+ens_weights = [0.5, 0.5]
 
 
 
 dfs, ens_dets = [], []
 bg_time = None
 
-MAX_NUM = 500
+MAX_NUM = 150
 
 counter = None
 
@@ -163,9 +141,9 @@ def ensemble(args):
     for df in dfs:
         df.PredictionString = df.PredictionString.fillna('')
     #assert len(preds[0][1]) == len(classes)
-    for i in range(1, len(dfs)):
+    for i in range(len(dfs)):
         dfs[i] = dfs[i].set_index('ImageID')
-        dfs[i] = dfs[i].reindex(index=dfs[0]['ImageID'])
+        dfs[i] = dfs[i].reindex(index=df_test['ImageID'])
         dfs[i] = dfs[i].reset_index()
 
     print('ensembling...')
@@ -190,7 +168,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='create submission from pred file')
     #parser.add_argument('--pred_file', type=str, required=True)
     parser.add_argument('--out', type=str, required=True)
-    parser.add_argument('--max_num', type=int, default=500)
+    parser.add_argument('--max_num', type=int, default=150)
 
     args = parser.parse_args()
     print(args)

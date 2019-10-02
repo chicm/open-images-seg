@@ -31,11 +31,25 @@ def merge_df(args):
     #    '../sub_htc_parent_0929am_iou02_rpn2000_top20_lb0331.csv',
     #    '../notebooks/od_convert_0928_top50_275_lowconf1000.csv'
     #]
-    
-    csv_files = [
-        'ens_0930_9models_top150.csv',
-        '../sub_htc_parent_0927am_lb0338.csv'
+
+    #lb 5145    
+    #csv_files = [
+    #    'ens_0930_9models_top150.csv',
+    #    '../sub_htc_parent_0927am_lb0338.csv'
         #'../notebooks/od_convert_0928_top50_275_lowconf1000.csv'
+    #]
+
+
+    #csv_files = [
+    #    'ens_1001_2models_level2.csv',
+    #    '../sub_htc_parent_0927am_lb0338.csv'
+        #'../notebooks/od_convert_0928_top50_275_lowconf1000.csv'
+    #]
+
+    csv_files = [
+        './lb5145/ens_0_20_5145_0265_top50.csv',
+        './lb5145/merge_0930_9models_lb5145_excludes_0_20.csv',
+        '../notebooks/od628_mask_300_lowconf200_top100.csv'
     ]
 
 
